@@ -4,7 +4,6 @@ dotenv.config();
 import express from "express";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
-import cors from "cors";
 
 import authRoutes from "./routes/authRoutes.js";
 import listingRoutes from "./routes/listingRoutes.js";
@@ -18,6 +17,8 @@ mongoose
   .connect(mongourl)
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.log("MongoDB Error:", err));
+
+import cors from "cors";
 
 app.use(cors({
   origin: "*",
