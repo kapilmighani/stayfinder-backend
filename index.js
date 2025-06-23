@@ -21,8 +21,8 @@ mongoose
 import cors from "cors";
 
 app.use(cors({
-  origin: "*",
-  credentials: true
+  origin: "https://stayfinder-frondend.vercel.app",
+  credentials: true
 }));
 
 app.use(express.json({ limit: "50kb" }));
