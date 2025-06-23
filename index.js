@@ -22,6 +22,7 @@ mongoose
 app.use(cors({
   origin: [
     "http://localhost:5173",
+    "https://stayfinder-frondend.vercel.app/"
   ],
   credentials: true
 }));
