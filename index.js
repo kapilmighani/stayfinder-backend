@@ -20,7 +20,8 @@ mongoose
   .catch((err) => console.log("MongoDB Error:", err));
 
 app.use(cors({
-  origin: "*"
+  origin: "*",
+  credentials: true
 }));
 
 app.use(express.json({ limit: "50kb" }));
