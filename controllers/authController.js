@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET;
+const isProduction = process.env.NODE_ENV === "production";
 
 export const registerUser = async (req, res) => {
   const { name, username, role, email, password } = req.body;
@@ -27,12 +28,12 @@ export const registerUser = async (req, res) => {
 
     const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "1d" });
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      sameSite: "Lax",
-      secure: false,
-      maxAge: 24 * 60 * 60 * 1000,
-    });
+res.cookie("token", token, {
+  httpOnly: true,
+  sameSite: isProduction ? "None" : "Lax",
+  secure: isProduction,  // ✅ true on production (https), false on localhost
+  maxAge: 24 * 60 * 60 * 1000,
+});
 
 
     res.status(200).json({
@@ -66,12 +67,12 @@ export const loginUser = async (req, res) => {
 
     const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "1d" });
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      sameSite: "Lax",
-      secure: false,
-      maxAge: 24 * 60 * 60 * 1000,
-    });
+res.cookie("token", token, {
+  httpOnly: true,
+  sameSite: isProduction ? "None" : "Lax",
+  secure: isProduction,  // ✅ true on production (https), false on localhost
+  maxAge: 24 * 60 * 60 * 1000,
+});
 
 
     res.json({
@@ -87,11 +88,11 @@ export const loginUser = async (req, res) => {
 
 
 export const logoutUser = (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    sameSite: "Lax",
-    secure: process.env.NODE_ENV === "production",
-  });
+res.clearCookie("token", {
+  httpOnly: true,
+  sameSite: isProduction ? "None" : "Lax",
+  secure: isProduction,
+});
 
   res.json({ message: "Logout successful" });
 };
