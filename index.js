@@ -20,10 +20,7 @@ mongoose
   .catch((err) => console.log("MongoDB Error:", err));
 
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://stayfinder-frondend.vercel.app/"
-  ],
+  origin: "*",  
   credentials: true
 }));
 
