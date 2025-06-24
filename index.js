@@ -21,7 +21,7 @@ mongoose
 import cors from "cors";
 
 app.use(cors({
-  origin: ["https://stayfinder-frontend.vercel.app", "http://localhost:5173"],
+  origin: "https://stayfinder-frontend.vercel.app",
   credentials: true,
 }));
 
