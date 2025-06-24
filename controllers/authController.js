@@ -29,11 +29,9 @@ export const registerUser = async (req, res) => {
     const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "1d" });
 
 res.cookie("token", token, {
-  httpOnly: true,
-  sameSite: isProduction ? "None" : "Lax",
-  secure: isProduction, // true in production
   maxAge: 24 * 60 * 60 * 1000,
 });
+
 
 
     res.status(200).json({
@@ -68,11 +66,9 @@ export const loginUser = async (req, res) => {
     const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "1d" });
 
 res.cookie("token", token, {
-  httpOnly: true,
-  sameSite: isProduction ? "None" : "Lax",
-  secure: isProduction, // true in production
-  maxAge: 24 * 60 * 60 * 1000,
+  maxAge: 24 * 60 * 60 * 1000, // 1 day
 });
+
 
 
     res.json({
@@ -88,11 +84,7 @@ res.cookie("token", token, {
 
 
 export const logoutUser = (req, res) => {
-res.clearCookie("token", {
-  httpOnly: true,
-  sameSite: isProduction ? "None" : "Lax",
-  secure: isProduction,
-});
+res.clearCookie("token");
 
 
   res.json({ message: "Logout successful" });
