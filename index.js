@@ -22,7 +22,7 @@ import cors from "cors";
 
 app.use(cors({
   origin: "https://stayfinder-frondend.vercel.app",
-  credentials: true
+  credentials: true,
 }));
 
 app.use(express.json({ limit: "50kb" }));
