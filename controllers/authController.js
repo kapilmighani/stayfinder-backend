@@ -6,7 +6,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET;
-const isProduction = process.env.NODE_ENV === "production";
 
 export const registerUser = async (req, res) => {
   const { name, username, role, email, password } = req.body;
@@ -30,8 +29,8 @@ export const registerUser = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      sameSite: isProduction ? "None" : "Lax",
-      secure: isProduction,
+      sameSite: "None",
+      secure: true,
     });
 
 
@@ -69,8 +68,8 @@ export const loginUser = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      sameSite: isProduction ? "None" : "Lax",
-      secure: isProduction,
+      sameSite: "None",
+      secure: true,
     });
 
 
@@ -90,8 +89,8 @@ export const loginUser = async (req, res) => {
 export const logoutUser = (req, res) => {
 res.clearCookie("token", {
   httpOnly: true,
-  sameSite: isProduction ? "None" : "Lax",
-  secure: isProduction,
+  sameSite: "None",
+  secure: true,
 });
   res.json({ message: "Logout successful" });
 };
