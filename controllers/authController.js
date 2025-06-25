@@ -4,9 +4,11 @@ dotenv.config();
 import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import cookieParser from "cookie-parser";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const isProduction = process.env.NODE_ENV === "production";
+app.use(cookieParser());
 
 export const registerUser = async (req, res) => {
   const { name, username, role, email, password } = req.body;
