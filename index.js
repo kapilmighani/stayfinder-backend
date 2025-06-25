@@ -21,7 +21,7 @@ mongoose
 import cors from "cors";
 
 const allowedOrigins = [
-  "https://stayfinder-frontend.vercel.app",
+  "https://stayfinder-frondend.vercel.app",
   "https://stayfinder-backend-trrx.onrender.com",
 ];
 
