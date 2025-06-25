@@ -2,8 +2,6 @@ import dotenv from "dotenv";
 dotenv.config();
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
-import cookieParser from "cookie-parser";
-app.use(cookieParser());
 
 const JWT_SECRET = process.env.JWT_SECRET;
 export const isAuthenticated = async (req, res, next) => {
