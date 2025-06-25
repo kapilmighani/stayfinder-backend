@@ -12,6 +12,7 @@ import errorHandler from "./middleware/errorhandler.js";
 
 const app = express();
 const mongourl = process.env.MONGODB_URI;
+const PORT = process.env.PORT || 8000;
 
 mongoose
   .connect(mongourl)
@@ -57,6 +58,6 @@ app.use(listingRoutes);
 app.use(bookingRoutes);
 app.use(errorHandler);
 
-app.listen(8000, () => {
+app.listen(PORT, () => {
   console.log("Server running on http://localhost:8000");
 });
