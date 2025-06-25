@@ -26,12 +26,12 @@ export const registerUser = async (req, res) => {
     });
 
     const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "7d" });
-console.log(
+    console.log(token);
     res.cookie("token", token, {
       httpOnly: true,
       sameSite: "None",
       secure: true,
-    }) );
+    });
 
     res.status(200).json({
       success: true,
