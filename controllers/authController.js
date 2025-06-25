@@ -4,11 +4,9 @@ dotenv.config();
 import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import cookieParser from "cookie-parser";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const isProduction = process.env.NODE_ENV === "production";
-app.use(cookieParser());
 
 export const registerUser = async (req, res) => {
   const { name, username, role, email, password } = req.body;
@@ -30,11 +28,11 @@ export const registerUser = async (req, res) => {
 
     const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "7d" });
 
-res.cookie("token", token, {
-  httpOnly: true,
-  sameSite: "None", 
-  secure: true,     
-});
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: isProduction ? "None" : "Lax",
+      secure: isProduction,
+    });
 
 
 
@@ -69,11 +67,11 @@ export const loginUser = async (req, res) => {
 
     const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "1d" });
 
-res.cookie("token", token, {
-  httpOnly: true,
-  sameSite: "None",  
-  secure: true,     
-});
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: isProduction ? "None" : "Lax",
+      secure: isProduction,
+    });
 
 
 
@@ -90,10 +88,10 @@ res.cookie("token", token, {
 
 
 export const logoutUser = (req, res) => {
-  res.clearCookie("token", {
+res.clearCookie("token", {
   httpOnly: true,
-  sameSite: "None",
-  secure: true,
+  sameSite: isProduction ? "None" : "Lax",
+  secure: isProduction,
 });
   res.json({ message: "Logout successful" });
 };
