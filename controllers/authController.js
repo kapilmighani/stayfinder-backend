@@ -78,7 +78,6 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // Generate fresh token
     const token = generateToken();
     user.verificationToken = token;
     user.verificationTokenExpires = Date.now() + 24 * 60 * 60 * 1000;
@@ -105,7 +104,6 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// 3️⃣ LOGOUT USER (bas token null kar dena backend side pe)
 export const logoutUser = async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
