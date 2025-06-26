@@ -2,7 +2,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";
-import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 
 import authRoutes from "./routes/authRoutes.js";
@@ -14,50 +13,32 @@ const app = express();
 const mongourl = process.env.MONGODB_URI;
 const PORT = process.env.PORT || 8000;
 
+// MongoDB Connection
 mongoose
   .connect(mongourl)
-  .then(() => console.log("MongoDB Connected"))
-  .catch((err) => console.log("MongoDB Error:", err));
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.error("❌ MongoDB Error:", err));
 
-import cors from "cors";
+// CORS for frontend access
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true, // allows cookie/header with request
+}));
 
-const allowedOrigins = [
-  "https://stayfinder-frondend.vercel.app",
-  "https://stayfinder-backend-trrx.onrender.com",
-];
+// Middleware
+app.use(express.json({ limit: "50kb" }));
+app.use(express.urlencoded({ extended: true, limit: "50kb" }));
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-      
-      // Check if origin is in allowed list or is a Vercel preview URL
-      if (
-        allowedOrigins.includes(origin) || 
-        origin.endsWith(".vercel.app") // For Vercel preview deployments
-      ) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-    exposedHeaders: ["Set-Cookie", "Authorization"], // Expose these headers to frontend
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allowed methods
-    allowedHeaders: ["Content-Type", "Authorization"] // Allowed request headers
-  })
-);
-
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true, limit: "50mb" }));
-app.use(cookieParser());
-
+// Routes
 app.use(authRoutes);
 app.use(listingRoutes);
 app.use(bookingRoutes);
+
+// Error Handler
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log("Server running on http://localhost:8000");
+// Start Server
+app.listen(8000, () => {
+  console.log("🚀 Server running on http://localhost:8000");
 });
+

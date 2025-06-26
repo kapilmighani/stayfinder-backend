@@ -1,26 +1,27 @@
-import dotenv from "dotenv";
-dotenv.config();
-import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 
-const JWT_SECRET = process.env.JWT_SECRET;
+// ✅ Middleware: Check if user is authenticated using crypto token
 export const isAuthenticated = async (req, res, next) => {
   try {
-    console.log('Received cookies:', req.cookies); 
-    const token = req.cookies?.token;
-    console.log(token);
+    const authHeader = req.headers.authorization;
 
-    if (!token) {
-      const err = new Error("Unauthorized: No token");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      const err = new Error("Unauthorized: No token provided");
       err.statusCode = 401;
       return next(err);
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await User.findById(decoded.id);
+    const token = authHeader.split(" ")[1];
+    console.log(token);
+
+    // 🔍 Check token in DB and its expiry
+    const user = await User.findOne({
+      verificationToken: token,
+      verificationTokenExpires: { $gt: Date.now() }, // token valid till now
+    });
 
     if (!user) {
-      const err = new Error("Unauthorized: Invalid user");
+      const err = new Error("Unauthorized: Invalid or expired token");
       err.statusCode = 401;
       return next(err);
     }
@@ -28,15 +29,15 @@ export const isAuthenticated = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    const err = new Error("Token is invalid or expired");
+    const err = new Error("Authentication failed");
     err.statusCode = 403;
     return next(err);
   }
 };
 
-
 export const authorizeRoles = (...roles) => {
   return (req, res, next) => {
+    console.log("Current user role:", req.user?.role); // 🔍 Log this
     if (!roles.includes(req.user.role)) {
       const err = new Error(
         `Access denied: Only [${roles.join(", ")}] allowed`
@@ -47,4 +48,3 @@ export const authorizeRoles = (...roles) => {
     next();
   };
 };
-

@@ -3,22 +3,14 @@ dotenv.config();
 
 import User from "../models/user.js";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
-// Helper function to set cookies consistently
-const setAuthCookie = (res, token) => {
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "None",
-    path: "/",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    // domain: process.env.COOKIE_DOMAIN // Uncomment if you need specific domain
-  });
+// 🔐 Generate secure token function
+const generateToken = () => {
+  return crypto.randomBytes(32).toString("hex");
 };
 
+// 1️⃣ REGISTER USER
 export const registerUser = async (req, res) => {
   const { name, username, role, email, password } = req.body;
 
@@ -32,23 +24,24 @@ export const registerUser = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    const token = generateToken();
+    const tokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 1 day
+
     const user = await User.create({
       name,
       username,
       role,
       email,
       password: hashedPassword,
+      verificationToken: token,
+      verificationTokenExpires: tokenExpires,
     });
-
-    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { 
-      expiresIn: "7d" 
-    });
-    
-    setAuthCookie(res, token);
 
     return res.status(201).json({
       success: true,
       message: "Signup successful",
+      token, // frontend me localStorage me set karna
       role: user.role,
       user: {
         name: user.name,
@@ -66,6 +59,7 @@ export const registerUser = async (req, res) => {
   }
 };
 
+// 2️⃣ LOGIN USER
 export const loginUser = async (req, res) => {
   const { username, password } = req.body;
 
@@ -86,15 +80,16 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { 
-      expiresIn: "1d" 
-    });
+    // Generate fresh token
+    const token = generateToken();
+    user.verificationToken = token;
+    user.verificationTokenExpires = Date.now() + 24 * 60 * 60 * 1000;
+    await user.save();
 
-    setAuthCookie(res, token);
-
-    return res.json({
+    res.json({
       success: true,
       message: "Login successful",
+      token, // frontend me localStorage me store karna
       role: user.role,
       user: {
         name: user.name,
@@ -112,38 +107,40 @@ export const loginUser = async (req, res) => {
   }
 };
 
-export const logoutUser = (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: true,
-    sameSite: "None",
-    path: "/",
-    // domain: process.env.COOKIE_DOMAIN // Must match original cookie settings
-  });
-  return res.json({ 
-    success: true,
-    message: "Logout successful" 
-  });
+// 3️⃣ LOGOUT USER (bas token null kar dena backend side pe)
+export const logoutUser = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(400).json({ message: "No token provided" });
+
+    const user = await User.findOne({ verificationToken: token });
+    if (user) {
+      user.verificationToken = null;
+      user.verificationTokenExpires = null;
+      await user.save();
+    }
+
+    res.json({ message: "Logout successful" });
+  } catch (err) {
+    res.status(500).json({ message: "Logout error" });
+  }
 };
 
-export const checkAuth = (req, res) => {
-  const token = req.cookies.token;
-  if (!token) {
-    return res.json({ 
-      authenticated: false 
-    });
-  }
+// 4️⃣ CHECK AUTH
+export const checkAuth = async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.json({ authenticated: false });
 
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    return res.json({ 
-      authenticated: true,
-      userId: decoded.id,
-      role: decoded.role 
-    });
-  } catch (err) {
-    return res.json({ 
-      authenticated: false 
-    });
-  }
+  const user = await User.findOne({
+    verificationToken: token,
+    verificationTokenExpires: { $gt: Date.now() },
+  });
+
+  if (!user) return res.json({ authenticated: false });
+
+  res.json({
+    authenticated: true,
+    userId: user._id,
+    role: user.role,
+  });
 };

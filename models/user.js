@@ -25,7 +25,9 @@ const userSchema = new Schema({
     type: String,
     enum: ['user', 'host'],
     default: 'user'
-  }
+  },
+  verificationToken: String,
+  verificationTokenExpires: Date
 });
 
 const User = model("User", userSchema);
