@@ -3,6 +3,7 @@ dotenv.config();
 
 import express from "express";
 import mongoose from "mongoose";
+import cors from "cors";
 
 import authRoutes from "./routes/authRoutes.js";
 import listingRoutes from "./routes/listingRoutes.js";
