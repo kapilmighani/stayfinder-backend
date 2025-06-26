@@ -17,13 +17,13 @@ const PORT = process.env.PORT || 8000;
 // MongoDB Connection
 mongoose
   .connect(mongourl)
-  .then(() => console.log("✅ MongoDB Connected"))
-  .catch((err) => console.error("❌ MongoDB Error:", err));
+  .then(() => console.log("MongoDB Connected"))
+  .catch((err) => console.error("MongoDB Error:", err));
 
 // CORS for frontend access
 app.use(cors({
   origin: "https://stayfinder-frondend-syhd.vercel.app",
-  credentials: true, // allows cookie/header with request
+  credentials: true,
 }));
 
 // Middleware
@@ -40,6 +40,6 @@ app.use(errorHandler);
 
 // Start Server
 app.listen(8000, () => {
-  console.log("🚀 Server running on http://localhost:8000");
+  console.log("Server running");
 });
 
