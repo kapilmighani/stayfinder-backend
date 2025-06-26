@@ -1,23 +1,21 @@
 import User from "../models/user.js";
 
-// ✅ Middleware: Check if user is authenticated using crypto token
 export const isAuthenticated = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
+    console.log(authHeader);
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       const err = new Error("Unauthorized: No token provided");
       err.statusCode = 401;
       return next(err);
     }
-
+    
     const token = authHeader.split(" ")[1];
-    console.log(token);
 
-    // 🔍 Check token in DB and its expiry
     const user = await User.findOne({
       verificationToken: token,
-      verificationTokenExpires: { $gt: Date.now() }, // token valid till now
+      verificationTokenExpires: { $gt: Date.now() },
     });
 
     if (!user) {
@@ -37,7 +35,7 @@ export const isAuthenticated = async (req, res, next) => {
 
 export const authorizeRoles = (...roles) => {
   return (req, res, next) => {
-    console.log("Current user role:", req.user?.role); // 🔍 Log this
+    console.log("Current user role:", req.user?.role);
     if (!roles.includes(req.user.role)) {
       const err = new Error(
         `Access denied: Only [${roles.join(", ")}] allowed`
