@@ -5,12 +5,10 @@ import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 
-// 🔐 Generate secure token function
 const generateToken = () => {
   return crypto.randomBytes(32).toString("hex");
 };
 
-// 1️⃣ REGISTER USER
 export const registerUser = async (req, res) => {
   const { name, username, role, email, password } = req.body;
 
@@ -26,7 +24,7 @@ export const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const token = generateToken();
-    const tokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 1 day
+    const tokenExpires = Date.now() + 24 * 60 * 60 * 1000;
 
     const user = await User.create({
       name,
@@ -41,7 +39,7 @@ export const registerUser = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: "Signup successful",
-      token, // frontend me localStorage me set karna
+      token,
       role: user.role,
       user: {
         name: user.name,
@@ -59,7 +57,7 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// 2️⃣ LOGIN USER
+
 export const loginUser = async (req, res) => {
   const { username, password } = req.body;
 
@@ -89,7 +87,7 @@ export const loginUser = async (req, res) => {
     res.json({
       success: true,
       message: "Login successful",
-      token, // frontend me localStorage me store karna
+      token,
       role: user.role,
       user: {
         name: user.name,
@@ -126,7 +124,6 @@ export const logoutUser = async (req, res) => {
   }
 };
 
-// 4️⃣ CHECK AUTH
 export const checkAuth = async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) return res.json({ authenticated: false });
