@@ -21,7 +21,7 @@ mongoose
 
 // CORS for frontend access
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: "https://stayfinder-frondend.vercel.app",
   credentials: true, // allows cookie/header with request
 }));
 
